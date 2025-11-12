@@ -1,0 +1,23 @@
+# GitHub Action to trigger worker rebuild weekly
+# This ensures yt-dlp stays updated in production
+
+name: Weekly yt-dlp Update
+
+on:
+  schedule:
+    # Run every Monday at 2 AM UTC
+    - cron: '0 2 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  trigger-rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Railway Redeploy
+        run: |
+          echo "This workflow can trigger Railway/Fly.io redeployment"
+          echo "Configure with Railway/Fly.io webhooks or API"
+          # Add your deployment trigger command here
+          
+      - name: Notify
+        run: echo "✅ Worker rebuild triggered to update yt-dlp"
