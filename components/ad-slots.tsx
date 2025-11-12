@@ -3,8 +3,8 @@
 import { useEffect } from 'react'
 
 // Google AdSense Ad Slots
-// Replace 'ca-pub-XXXXX' with your AdSense publisher ID
-// Replace 'XXXXX' with your ad slot IDs
+// Publisher ID: ca-pub-3595854121600052
+// Replace 'XXXXX' with your ad slot IDs after creating ad units in AdSense dashboard
 
 export function HeaderAd() {
   useEffect(() => {
@@ -21,7 +21,7 @@ export function HeaderAd() {
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client="ca-pub-XXXXX"
+        data-ad-client="ca-pub-3595854121600052"
         data-ad-slot="XXXXX"
         data-ad-format="horizontal"
         data-full-width-responsive="true"
@@ -45,7 +45,7 @@ export function InContentAd() {
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client="ca-pub-XXXXX"
+        data-ad-client="ca-pub-3595854121600052"
         data-ad-slot="XXXXX"
         data-ad-format="rectangle"
         data-full-width-responsive="true"
@@ -69,7 +69,7 @@ export function SidebarAd() {
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client="ca-pub-XXXXX"
+        data-ad-client="ca-pub-3595854121600052"
         data-ad-slot="XXXXX"
         data-ad-format="vertical"
         data-full-width-responsive="true"
@@ -93,7 +93,7 @@ export function BottomAd() {
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client="ca-pub-XXXXX"
+        data-ad-client="ca-pub-3595854121600052"
         data-ad-slot="XXXXX"
         data-ad-format="horizontal"
         data-full-width-responsive="true"
