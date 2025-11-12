@@ -37,3 +37,5 @@ next-env.d.ts
 /worker/downloads/
 /worker/__pycache__/
 /worker/*.pyc
+
+MONETIZATION.md
