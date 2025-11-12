@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { Download, Loader2, Video, Music } from 'lucide-react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
@@ -18,6 +19,18 @@ export default function YouTubeDownloader() {
   const [selectedQuality, setSelectedQuality] = useState('')
   const [downloadFormat, setDownloadFormat] = useState<'video' | 'audio'>('video')
   const [downloading, setDownloading] = useState(false)
+  const [downloadProgress, setDownloadProgress] = useState(0)
+  const [downloadStatus, setDownloadStatus] = useState('')
+  const [downloadComplete, setDownloadComplete] = useState(false)
+
+  const resetForm = () => {
+    setUrl('')
+    setVideoInfo(null)
+    setSelectedQuality('')
+    setDownloadComplete(false)
+    setDownloadFormat('video')
+    toast.success('Ready for a new download!')
+  }
 
   const handleFetchInfo = async () => {
     if (!url.trim()) {
@@ -48,38 +61,77 @@ export default function YouTubeDownloader() {
   }
 
   const handleDownload = async () => {
-    if (!videoInfo || !selectedQuality) {
-      toast.error('Please select a quality first')
+    // For audio, we don't need video info or quality selection
+    if (downloadFormat === 'video' && (!videoInfo || !selectedQuality)) {
+      toast.error('Please fetch video info and select a quality first')
+      return
+    }
+
+    if (!url.trim()) {
+      toast.error('Please enter a YouTube URL')
       return
     }
 
     setDownloading(true)
+    setDownloadProgress(0)
+    setDownloadStatus('Preparing download...')
 
     try {
+      // Step 1: Request download from backend
+      setDownloadStatus('Processing video...')
+      setDownloadProgress(20)
+      
       const response = await axios.post('/api/download', {
         url,
-        quality: selectedQuality,
+        quality: selectedQuality || '192',
         format: downloadFormat,
       })
 
       if (response.data.success && response.data.downloadUrl) {
-        // Create a temporary link to trigger download
+        // Step 2: Download file with progress tracking
+        setDownloadStatus('Downloading file...')
+        setDownloadProgress(40)
+        
+        const fileResponse = await axios.get(response.data.downloadUrl, {
+          responseType: 'blob',
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percentCompleted = Math.round(
+                40 + (progressEvent.loaded / progressEvent.total) * 60
+              )
+              setDownloadProgress(percentCompleted)
+              setDownloadStatus(`Downloading... ${percentCompleted}%`)
+            }
+          },
+        })
+
+        // Step 3: Trigger browser save dialog
+        setDownloadStatus('Saving file...')
+        setDownloadProgress(100)
+        
+        const blob = new Blob([fileResponse.data])
+        const downloadUrl = window.URL.createObjectURL(blob)
         const link = document.createElement('a')
-        link.href = response.data.downloadUrl
+        link.href = downloadUrl
         link.download = response.data.filename || 'download'
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
+        window.URL.revokeObjectURL(downloadUrl)
         
-        toast.success('Download started!')
+        toast.success('Download complete!')
+        setDownloadStatus('')
+        setDownloadComplete(true)
       } else {
         throw new Error(response.data.error || 'Download failed')
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || 'Failed to download video'
+      const errorMessage = error.response?.data?.error || 'Failed to download'
       toast.error(errorMessage)
+      setDownloadStatus('')
     } finally {
       setDownloading(false)
+      setDownloadProgress(0)
     }
   }
 
@@ -174,8 +226,76 @@ export default function YouTubeDownloader() {
         </CardContent>
       </Card>
 
+      {/* Audio Download Section */}
+      {downloadFormat === 'audio' && videoInfo && (
+        <Card>
+          <CardContent className="pt-6">
+          <div className="flex gap-4">
+              {videoInfo.thumbnail && (
+                <img
+                  src={videoInfo.thumbnail}
+                  alt={videoInfo.title}
+                  className="w-40 h-24 object-cover rounded-lg"
+                />
+              )}
+              <div className="flex-1 space-y-2">
+                <h3 className="font-semibold text-lg line-clamp-2">
+                  {videoInfo.title}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Duration: {formatDuration(videoInfo.duration)}
+                </p>
+                
+                <div className="space-y-2 pt-2">
+                  <Label htmlFor="audio-quality">Audio Quality</Label>
+                  <Select
+                    id="audio-quality"
+                    value={selectedQuality || '192'}
+                    onChange={(e) => setSelectedQuality(e.target.value)}
+                  >
+                    <option value="320">320 kbps (Best Quality)</option>
+                    <option value="192">192 kbps (High Quality)</option>
+                    <option value="128">128 kbps (Standard Quality)</option>
+                    <option value="96">96 kbps (Low Quality)</option>
+                  </Select>
+                </div>
+
+                {downloading && (
+                  <div className="space-y-2 mt-4">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{downloadStatus}</span>
+                      <span className="text-muted-foreground">{downloadProgress}%</span>
+                    </div>
+                    <Progress value={downloadProgress} />
+                  </div>
+                )}
+
+                <Button
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  className="w-full mt-4"
+                  size="lg"
+                >
+                  {downloading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Audio (MP3)
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Video Info Card */}
-      {videoInfo && (
+      {videoInfo && downloadFormat === 'video' && (
         <Card>
           <CardContent className="pt-6">
             <div className="flex gap-4">
@@ -210,6 +330,16 @@ export default function YouTubeDownloader() {
                   </Select>
                 </div>
 
+                {downloading && (
+                  <div className="space-y-2 mt-4">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{downloadStatus}</span>
+                      <span className="text-muted-foreground">{downloadProgress}%</span>
+                    </div>
+                    <Progress value={downloadProgress} />
+                  </div>
+                )}
+
                 <Button
                   onClick={handleDownload}
                   disabled={downloading || !selectedQuality}
@@ -229,6 +359,31 @@ export default function YouTubeDownloader() {
                   )}
                 </Button>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Download Another Video Button */}
+      {downloadComplete && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center gap-4">
+              <div className="text-center">
+                <h3 className="font-semibold text-lg mb-1">Download Complete! 🎉</h3>
+                <p className="text-sm text-muted-foreground">
+                  Ready to download another video?
+                </p>
+              </div>
+              <Button
+                onClick={resetForm}
+                variant="default"
+                size="lg"
+                className="w-full max-w-md"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download Another Video
+              </Button>
             </div>
           </CardContent>
         </Card>

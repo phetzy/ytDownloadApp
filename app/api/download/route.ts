@@ -3,7 +3,7 @@ import { youtubeUrlSchema } from '@/lib/types'
 import axios from 'axios'
 
 // Replace with your worker service URL (Railway/Fly.io)
-const WORKER_URL = process.env.WORKER_SERVICE_URL
+const WORKER_URL = process.env.WORKER_SERVICE_URL || 'http://127.0.0.1:8000'
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,7 +39,16 @@ export async function POST(req: NextRequest) {
       }
     )
 
-    return NextResponse.json(response.data)
+    // Fix the downloadUrl to point to the worker service
+    const responseData = response.data
+    if (responseData.success && responseData.downloadUrl) {
+      // If downloadUrl is relative, prepend worker URL
+      if (responseData.downloadUrl.startsWith('/')) {
+        responseData.downloadUrl = `${WORKER_URL}${responseData.downloadUrl}`
+      }
+    }
+
+    return NextResponse.json(responseData)
   } catch (error: any) {
     console.error('Error initiating download:', error)
     

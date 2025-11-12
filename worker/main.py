@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -190,21 +190,25 @@ async def download_video(request: DownloadRequest):
         
         # Configure download options
         if request.format == 'audio':
-            # Audio only
-            output_template = str(DOWNLOAD_DIR / f"{title}.%(ext)s")
+            # Audio only - use quality parameter for bitrate
+            audio_quality = request.quality if request.quality else '192'
+            output_template = str(DOWNLOAD_DIR / f"{title}.mp3")
             ydl_opts = {
                 'format': 'bestaudio/best',
                 'outtmpl': output_template,
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
-                    'preferredquality': '192',
+                    'preferredquality': audio_quality,
                 }],
-                'quiet': True,
+                'keepvideo': False,
+                'prefer_ffmpeg': True,
+                'quiet': False,
+                'no_warnings': False,
             }
             filename = f"{title}.mp3"
         else:
-            # Video with audio
+            # Video with audio - ensure MP4 output
             output_template = str(DOWNLOAD_DIR / f"{title}.%(ext)s")
             
             # If specific quality is requested
@@ -217,7 +221,18 @@ async def download_video(request: DownloadRequest):
                 'format': format_string,
                 'outtmpl': output_template,
                 'merge_output_format': 'mp4',
-                'quiet': True,
+                'postprocessors': [{
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'mp4',
+                }],
+                'postprocessor_args': [
+                    '-c:v', 'copy',  # Copy video stream as-is
+                    '-c:a', 'aac',   # Re-encode audio to AAC
+                    '-b:a', '192k',  # Audio bitrate
+                ],
+                'prefer_ffmpeg': True,
+                'quiet': False,
+                'no_warnings': False,
             }
             filename = f"{title}.mp4"
         
@@ -228,13 +243,19 @@ async def download_video(request: DownloadRequest):
         # Check if file exists
         file_path = DOWNLOAD_DIR / filename
         if not file_path.exists():
-            # Try to find the file with different extension
-            for ext in ['mp4', 'webm', 'mkv', 'mp3']:
-                alt_path = DOWNLOAD_DIR / f"{title}.{ext}"
+            # Try to find the file with mp4 or mp3 extension only
+            if request.format == 'audio':
+                # For audio, only look for mp3
+                alt_path = DOWNLOAD_DIR / f"{title}.mp3"
                 if alt_path.exists():
                     file_path = alt_path
                     filename = alt_path.name
-                    break
+            else:
+                # For video, only look for mp4
+                alt_path = DOWNLOAD_DIR / f"{title}.mp4"
+                if alt_path.exists():
+                    file_path = alt_path
+                    filename = alt_path.name
         
         if not file_path.exists():
             raise HTTPException(status_code=500, detail="Download completed but file not found")
@@ -254,12 +275,21 @@ async def download_video(request: DownloadRequest):
         raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
 
 @app.get("/download/{filename}")
-async def serve_file(filename: str):
-    """Serve downloaded file"""
+async def serve_file(filename: str, background_tasks: BackgroundTasks):
+    """Serve downloaded file and clean up after"""
     file_path = DOWNLOAD_DIR / filename
     
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
+    
+    # Schedule file deletion after it's been sent
+    def cleanup_file():
+        import time
+        time.sleep(5)  # Wait 5 seconds to ensure download completes
+        if file_path.exists():
+            file_path.unlink()
+    
+    background_tasks.add_task(cleanup_file)
     
     return FileResponse(
         path=file_path,
