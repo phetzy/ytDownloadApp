@@ -354,7 +354,7 @@ export default function YouTubeDownloader() {
                   ) : (
                     <>
                       <Download className="mr-2 h-4 w-4" />
-                      Download {downloadFormat === 'audio' ? 'Audio' : 'Video'}
+                      Download Video
                     </>
                   )}
                 </Button>
