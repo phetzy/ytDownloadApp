@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -232,10 +233,13 @@ export default function YouTubeDownloader() {
           <CardContent className="pt-6">
           <div className="flex gap-4">
               {videoInfo.thumbnail && (
-                <img
+                <Image
                   src={videoInfo.thumbnail}
                   alt={videoInfo.title}
+                  width={160}
+                  height={96}
                   className="w-40 h-24 object-cover rounded-lg"
+                  unoptimized
                 />
               )}
               <div className="flex-1 space-y-2">
@@ -300,10 +304,13 @@ export default function YouTubeDownloader() {
           <CardContent className="pt-6">
             <div className="flex gap-4">
               {videoInfo.thumbnail && (
-                <img
+                <Image
                   src={videoInfo.thumbnail}
                   alt={videoInfo.title}
+                  width={160}
+                  height={96}
                   className="w-40 h-24 object-cover rounded-lg"
+                  unoptimized
                 />
               )}
               <div className="flex-1 space-y-2">
