@@ -1,0 +1,54 @@
+name: CI - Lint and Build Check
+
+# Optional: Remove this file if you don't need CI
+# Vercel and Railway already auto-deploy on push
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Frontend checks
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Type check
+        run: npm run build
+      
+      # Uncomment when you add tests
+      # - name: Run tests
+      #   run: npm test
+
+  # Worker checks (optional)
+  worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        working-directory: ./worker
+        run: |
+          pip install -r requirements.txt
+      
+      # Uncomment when you add tests
+      # - name: Run tests
+      #   working-directory: ./worker
+      #   run: pytest
