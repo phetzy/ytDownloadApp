@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://your-domain.com',
+    url: 'https://ytdownloaders.com',
     title: 'YouTube Downloader - Free Online Video & Audio Downloader',
     description: 'Download YouTube videos in multiple qualities (144p-4K+) or extract audio as MP3. Fast, free, and secure online tool.',
     siteName: 'YouTube Downloader',
@@ -44,10 +44,10 @@ export const metadata: Metadata = {
     title: 'YouTube Downloader - Free Video & Audio Downloads',
     description: 'Download YouTube videos in MP4 or audio in MP3. Multiple quality options. Fast and secure.',
     images: ['/og-image.png'],
-    creator: '@yourusername',
+    creator: '@phetzy',
   },
   alternates: {
-    canonical: 'https://your-domain.com',
+    canonical: 'https://ytdownloaders.com',
   },
   verification: {
     google: 'your-google-verification-code',
@@ -63,6 +63,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content="ca-pub-3595854121600052" />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3595854121600052"
+          crossOrigin="anonymous"
+        />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3595854121600052"
