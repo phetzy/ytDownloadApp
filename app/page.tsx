@@ -2,6 +2,7 @@ import YouTubeDownloader from '@/components/youtube-downloader'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { AdSense } from '@/components/adsense'
 import { Footer } from '@/components/footer'
+import { KofiButton } from '@/components/kofi-button'
 
 export default function Home() {
   return (
@@ -21,6 +22,11 @@ export default function Home() {
           <div className="flex-1 flex justify-end">
             <ThemeToggle />
           </div>
+        </div>
+        
+        {/* Ko-fi Support Button */}
+        <div className="flex justify-center mb-8">
+          <KofiButton kofiId="G2G01P5FRJ" />
         </div>
         
         {/* Top Ad - Above main content */}

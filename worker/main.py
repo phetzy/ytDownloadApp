@@ -5,10 +5,20 @@ from pydantic import BaseModel
 import yt_dlp
 import os
 import json
+import time
+import subprocess
+import sys
+import psutil
 from pathlib import Path
 from typing import Optional, List, Dict, Any
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
 
 app = FastAPI(title="YouTube Downloader Worker")
+
+# Initialize scheduler
+scheduler = BackgroundScheduler()
+scheduler.start()
 
 # Configure CORS
 app.add_middleware(
@@ -159,7 +169,39 @@ def parse_formats(info: Dict[str, Any]) -> List[VideoFormat]:
 
 @app.get("/")
 async def root():
-    return {"status": "YouTube Downloader Worker Service", "version": "1.0.0"}
+    return {
+        "status": "YouTube Downloader Worker Service",
+        "version": "1.0.0",
+        "uptime_seconds": time.time() - start_time
+    }
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    try:
+        # Check disk space
+        disk = psutil.disk_usage('/')
+        memory = psutil.virtual_memory()
+        
+        # Check if downloads directory is accessible
+        downloads_accessible = DOWNLOAD_DIR.exists()
+        
+        # Count files in downloads directory
+        file_count = len(list(DOWNLOAD_DIR.iterdir())) if downloads_accessible else 0
+        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "uptime_seconds": time.time() - start_time,
+            "disk_free_gb": round(disk.free / (1024**3), 2),
+            "disk_usage_percent": disk.percent,
+            "memory_usage_percent": memory.percent,
+            "downloads_dir_accessible": downloads_accessible,
+            "pending_files": file_count,
+            "scheduler_running": scheduler.running
+        }
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Health check failed: {str(e)}")
 
 @app.post("/api/video-info", response_model=VideoInfoResponse)
 async def video_info(request: VideoInfoRequest):
@@ -297,11 +339,59 @@ async def serve_file(filename: str, background_tasks: BackgroundTasks):
         media_type='application/octet-stream'
     )
 
-# Cleanup endpoint (optional - for managing storage)
+# Scheduled Tasks
+def scheduled_cleanup():
+    """Scheduled cleanup of old files - runs every 30 minutes"""
+    try:
+        removed = 0
+        current_time = time.time()
+        max_age = 3600  # 1 hour
+        
+        if not DOWNLOAD_DIR.exists():
+            print(f"[{datetime.now()}] Downloads directory not found")
+            return
+        
+        for file_path in DOWNLOAD_DIR.iterdir():
+            if file_path.is_file():
+                file_age = current_time - file_path.stat().st_mtime
+                if file_age > max_age:
+                    try:
+                        file_path.unlink()
+                        removed += 1
+                    except Exception as e:
+                        print(f"Error removing {file_path.name}: {e}")
+        
+        print(f"[{datetime.now()}] Scheduled cleanup: Removed {removed} files")
+    except Exception as e:
+        print(f"[{datetime.now()}] Cleanup error: {e}")
+
+def update_ytdlp():
+    """Update yt-dlp to latest version - runs daily"""
+    try:
+        print(f"[{datetime.now()}] Updating yt-dlp...")
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "--upgrade", "--no-cache-dir", "yt-dlp"],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
+        )
+        
+        if result.returncode == 0:
+            if "Successfully installed" in result.stdout:
+                print(f"[{datetime.now()}] ✅ yt-dlp updated successfully!")
+            else:
+                print(f"[{datetime.now()}] ✅ yt-dlp already up to date")
+        else:
+            print(f"[{datetime.now()}] ⚠️ yt-dlp update failed: {result.stderr}")
+    except subprocess.TimeoutExpired:
+        print(f"[{datetime.now()}] ⚠️ yt-dlp update timed out")
+    except Exception as e:
+        print(f"[{datetime.now()}] ❌ yt-dlp update error: {e}")
+
+# Cleanup endpoint (manual trigger)
 @app.delete("/api/cleanup")
 async def cleanup_old_files():
-    """Remove downloaded files older than 1 hour"""
-    import time
+    """Manually trigger cleanup of old files"""
     removed = 0
     current_time = time.time()
     
@@ -313,6 +403,54 @@ async def cleanup_old_files():
                 removed += 1
     
     return {"removed": removed, "message": f"Cleaned up {removed} old files"}
+
+@app.post("/api/update-ytdlp")
+async def trigger_ytdlp_update():
+    """Manually trigger yt-dlp update"""
+    update_ytdlp()
+    return {"message": "yt-dlp update triggered"}
+
+# Track start time for uptime
+start_time = time.time()
+
+# Schedule tasks
+@app.on_event("startup")
+async def startup_event():
+    """Initialize scheduled tasks on startup"""
+    print(f"[{datetime.now()}] Starting YouTube Downloader Worker...")
+    
+    # Schedule cleanup every 30 minutes
+    scheduler.add_job(
+        scheduled_cleanup,
+        'interval',
+        minutes=30,
+        id='cleanup_job',
+        replace_existing=True
+    )
+    print("✅ Scheduled cleanup job: Every 30 minutes")
+    
+    # Schedule yt-dlp update daily at 3 AM UTC
+    scheduler.add_job(
+        update_ytdlp,
+        'cron',
+        hour=3,
+        minute=0,
+        id='ytdlp_update_job',
+        replace_existing=True
+    )
+    print("✅ Scheduled yt-dlp update: Daily at 3:00 AM UTC")
+    
+    # Run initial cleanup
+    scheduled_cleanup()
+    
+    print(f"[{datetime.now()}] Worker startup complete!")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    print(f"[{datetime.now()}] Shutting down...")
+    scheduler.shutdown()
+    print("✅ Scheduler stopped")
 
 if __name__ == "__main__":
     import uvicorn

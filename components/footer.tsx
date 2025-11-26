@@ -15,6 +15,14 @@ export function Footer() {
             <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
               Terms of Service
             </Link>
+            <Link 
+              href="https://ko-fi.com/phetzy" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#FF5E5B] hover:text-[#FF5E5B]/80 transition-colors font-medium"
+            >
+              ☕ Support
+            </Link>
           </nav>
         </div>
         <div className="text-center mt-4 text-xs text-muted-foreground">
