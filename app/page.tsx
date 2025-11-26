@@ -1,5 +1,6 @@
 import YouTubeDownloader from '@/components/youtube-downloader'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { AdSense } from '@/components/adsense'
 
 export default function Home() {
   return (
@@ -21,7 +22,25 @@ export default function Home() {
           </div>
         </div>
         
+        {/* Top Ad - Above main content */}
+        <div className="mb-8 flex justify-center">
+          <AdSense 
+            adSlot="YOUR_TOP_AD_SLOT_ID"
+            adFormat="auto"
+            className="max-w-4xl"
+          />
+        </div>
+        
         <YouTubeDownloader />
+        
+        {/* Bottom Ad - Below main content */}
+        <div className="mt-8 flex justify-center">
+          <AdSense 
+            adSlot="YOUR_BOTTOM_AD_SLOT_ID"
+            adFormat="auto"
+            className="max-w-4xl"
+          />
+        </div>
       </div>
     </main>
   )
