@@ -3,10 +3,16 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { AdSense } from '@/components/adsense'
 import { Footer } from '@/components/footer'
 import { KofiButton } from '@/components/kofi-button'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <main className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12">
         {/* Header with Theme Toggle */}
         <div className="flex justify-between items-center mb-8">
@@ -111,32 +117,43 @@ export default function Home() {
         {/* FAQ Section */}
         <section className="mt-16 max-w-4xl mx-auto mb-12">
           <h2 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
-          <div className="space-y-6">
-            <div className="p-6 rounded-lg bg-card border">
-              <h3 className="text-xl font-semibold mb-2">Is it legal to download YouTube videos?</h3>
-              <p className="text-muted-foreground">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger className="text-xl font-semibold">
+                Is it legal to download YouTube videos?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
                 Downloading videos for personal, offline viewing may be allowed under YouTube&apos;s terms for YouTube Premium subscribers. Always respect copyright laws and content creators&apos; rights. Only download videos you have permission to use.
-              </p>
-            </div>
-            <div className="p-6 rounded-lg bg-card border">
-              <h3 className="text-xl font-semibold mb-2">What video quality options are available?</h3>
-              <p className="text-muted-foreground">
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-2">
+              <AccordionTrigger className="text-xl font-semibold">
+                What video quality options are available?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
                 We offer multiple quality options ranging from 144p (low quality, small file size) up to 4K and beyond, depending on the original video&apos;s upload quality. Higher quality means larger file sizes but better viewing experience.
-              </p>
-            </div>
-            <div className="p-6 rounded-lg bg-card border">
-              <h3 className="text-xl font-semibold mb-2">Do I need to install any software?</h3>
-              <p className="text-muted-foreground">
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-3">
+              <AccordionTrigger className="text-xl font-semibold">
+                Do I need to install any software?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
                 No installation required! Our YouTube downloader is completely web-based. Simply visit our site, paste the video URL, and download. It works on any device with a web browser - desktop, mobile, or tablet.
-              </p>
-            </div>
-            <div className="p-6 rounded-lg bg-card border">
-              <h3 className="text-xl font-semibold mb-2">Is there a download limit?</h3>
-              <p className="text-muted-foreground">
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-4">
+              <AccordionTrigger className="text-xl font-semibold">
+                Is there a download limit?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
                 Our service is free to use with reasonable usage limits to ensure fair access for all users. For high-volume downloading needs, please use the service responsibly and consider the bandwidth impact.
-              </p>
-            </div>
-          </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </section>
       </div>
       

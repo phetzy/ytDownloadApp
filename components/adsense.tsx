@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface AdSenseProps {
   adSlot: string
@@ -21,10 +21,24 @@ export function AdSense({
   fullWidthResponsive = true,
   className = ''
 }: AdSenseProps) {
+  const adRef = useRef<HTMLModElement>(null)
+  const isLoaded = useRef(false)
+
   useEffect(() => {
+    // Prevent double-loading in development mode
+    if (isLoaded.current) return
+    
     try {
-      if (typeof window !== 'undefined') {
-        (window.adsbygoogle = window.adsbygoogle || []).push({})
+      if (typeof window !== 'undefined' && adRef.current) {
+        // Small delay to ensure DOM is ready and has dimensions
+        const timer = setTimeout(() => {
+          if (adRef.current && adRef.current.offsetWidth > 0) {
+            (window.adsbygoogle = window.adsbygoogle || []).push({})
+            isLoaded.current = true
+          }
+        }, 100)
+        
+        return () => clearTimeout(timer)
       }
     } catch (error) {
       console.error('AdSense error:', error)
@@ -33,8 +47,9 @@ export function AdSense({
 
   return (
     <ins
+      ref={adRef}
       className={`adsbygoogle ${className}`}
-      style={{ display: 'block' }}
+      style={{ display: 'block', minHeight: '50px' }}
       data-ad-client="ca-pub-3595854121600052"
       data-ad-slot={adSlot}
       data-ad-format={adFormat}
