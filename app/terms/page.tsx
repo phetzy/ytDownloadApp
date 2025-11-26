@@ -32,7 +32,7 @@ export default function TermsOfService() {
             <h2 className="text-2xl font-semibold mb-4">Service Description</h2>
             <p className="text-muted-foreground">
               YouTube Downloader provides a web-based tool for downloading videos and extracting audio from 
-              YouTube. The service is provided "as is" and we reserve the right to modify or discontinue 
+              YouTube. The service is provided &quot;as is&quot; and we reserve the right to modify or discontinue 
               the service at any time.
             </p>
           </section>
@@ -56,8 +56,8 @@ export default function TermsOfService() {
             <h2 className="text-2xl font-semibold mb-4">Copyright and Intellectual Property</h2>
             <p className="text-muted-foreground">
               You are solely responsible for ensuring you have the right to download any content. We do not 
-              condone copyright infringement. YouTube's terms of service prohibit downloading content without 
-              permission unless you're a YouTube Premium subscriber downloading for offline viewing.
+              condone copyright infringement. YouTube&apos;s terms of service prohibit downloading content without 
+              permission unless you&apos;re a YouTube Premium subscriber downloading for offline viewing.
             </p>
           </section>
 
@@ -69,7 +69,7 @@ export default function TermsOfService() {
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>Download copyrighted content without permission</li>
               <li>Distribute downloaded content commercially</li>
-              <li>Violate YouTube's Terms of Service</li>
+              <li>Violate YouTube&apos;s Terms of Service</li>
               <li>Engage in any illegal activities</li>
               <li>Scrape or automate downloads in bulk</li>
             </ul>
@@ -78,7 +78,7 @@ export default function TermsOfService() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Disclaimer of Warranties</h2>
             <p className="text-muted-foreground">
-              Our service is provided "as is" without warranties of any kind. We do not guarantee uninterrupted 
+              Our service is provided &quot;as is&quot; without warranties of any kind. We do not guarantee uninterrupted 
               access, accuracy of downloads, or that the service will meet your requirements. Use at your own risk.
             </p>
           </section>

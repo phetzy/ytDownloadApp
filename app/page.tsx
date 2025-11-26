@@ -77,7 +77,7 @@ export default function Home() {
               <div>
                 <h3 className="text-xl font-semibold mb-2">Copy the YouTube Video URL</h3>
                 <p className="text-muted-foreground">
-                  Navigate to YouTube and find the video you want to download. Copy the URL from your browser's address bar or use the "Share" button to get the link.
+                  Navigate to YouTube and find the video you want to download. Copy the URL from your browser&apos;s address bar or use the &quot;Share&quot; button to get the link.
                 </p>
               </div>
             </div>
@@ -86,7 +86,7 @@ export default function Home() {
               <div>
                 <h3 className="text-xl font-semibold mb-2">Paste URL and Select Format</h3>
                 <p className="text-muted-foreground">
-                  Paste the YouTube video URL into the input field above. Choose whether you want to download the video (MP4) or extract audio only (MP3). Click "Get Video Info" to see available options.
+                  Paste the YouTube video URL into the input field above. Choose whether you want to download the video (MP4) or extract audio only (MP3). Click &quot;Get Video Info&quot; to see available options.
                 </p>
               </div>
             </div>
@@ -95,7 +95,7 @@ export default function Home() {
               <div>
                 <h3 className="text-xl font-semibold mb-2">Choose Quality and Download</h3>
                 <p className="text-muted-foreground">
-                  Select your preferred video quality or audio format from the available options. Click the "Download" button, and your file will be processed and downloaded to your device automatically.
+                  Select your preferred video quality or audio format from the available options. Click the &quot;Download&quot; button, and your file will be processed and downloaded to your device automatically.
                 </p>
               </div>
             </div>
@@ -109,13 +109,13 @@ export default function Home() {
             <div className="p-6 rounded-lg bg-card border">
               <h3 className="text-xl font-semibold mb-2">Is it legal to download YouTube videos?</h3>
               <p className="text-muted-foreground">
-                Downloading videos for personal, offline viewing may be allowed under YouTube's terms for YouTube Premium subscribers. Always respect copyright laws and content creators' rights. Only download videos you have permission to use.
+                Downloading videos for personal, offline viewing may be allowed under YouTube&apos;s terms for YouTube Premium subscribers. Always respect copyright laws and content creators&apos; rights. Only download videos you have permission to use.
               </p>
             </div>
             <div className="p-6 rounded-lg bg-card border">
               <h3 className="text-xl font-semibold mb-2">What video quality options are available?</h3>
               <p className="text-muted-foreground">
-                We offer multiple quality options ranging from 144p (low quality, small file size) up to 4K and beyond, depending on the original video's upload quality. Higher quality means larger file sizes but better viewing experience.
+                We offer multiple quality options ranging from 144p (low quality, small file size) up to 4K and beyond, depending on the original video&apos;s upload quality. Higher quality means larger file sizes but better viewing experience.
               </p>
             </div>
             <div className="p-6 rounded-lg bg-card border">

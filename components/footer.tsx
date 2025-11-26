@@ -18,7 +18,7 @@ export function Footer() {
           </nav>
         </div>
         <div className="text-center mt-4 text-xs text-muted-foreground">
-          <p>This tool is for personal use only. Always respect copyright and content creators' rights.</p>
+          <p>This tool is for personal use only. Always respect copyright and content creators&apos; rights.</p>
         </div>
       </div>
     </footer>
