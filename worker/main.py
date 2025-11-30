@@ -234,7 +234,8 @@ async def download_video(request: DownloadRequest):
         if request.format == 'audio':
             # Audio only - use quality parameter for bitrate
             audio_quality = request.quality if request.quality else '192'
-            output_template = str(DOWNLOAD_DIR / f"{title}.mp3")
+            # Don't include .mp3 in template - postprocessor will add it
+            output_template = str(DOWNLOAD_DIR / f"{title}.%(ext)s")
             ydl_opts = {
                 'format': 'bestaudio/best',
                 'outtmpl': output_template,
