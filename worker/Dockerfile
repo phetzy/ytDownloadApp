@@ -23,6 +23,7 @@ RUN pip install --upgrade --no-cache-dir yt-dlp
 
 # Copy application code
 COPY main.py .
+COPY cron_update_ytdlp.py .
 
 # Create downloads directory with proper permissions
 RUN mkdir -p downloads && \

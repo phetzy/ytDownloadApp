@@ -17,8 +17,7 @@ from datetime import datetime
 app = FastAPI(title="YouTube Downloader Worker")
 
 # Initialize scheduler
-scheduler = BackgroundScheduler()
-scheduler.start()
+scheduler = BackgroundScheduler(timezone="UTC")
 
 # Configure CORS
 app.add_middleware(
@@ -371,11 +370,20 @@ def update_ytdlp():
     try:
         print(f"[{datetime.now()}] Updating yt-dlp...")
         result = subprocess.run(
-            [sys.executable, "-m", "pip", "install", "--upgrade", "--no-cache-dir", "yt-dlp"],
-            capture_output=True,
-            text=True,
-            timeout=300  # 5 minute timeout
-        )
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                "--no-cache-dir",
+                "--user",
+                "yt-dlp",
+            ],
+             capture_output=True,
+             text=True,
+             timeout=300  # 5 minute timeout
+         )
         
         if result.returncode == 0:
             if "Successfully installed" in result.stdout:
@@ -420,6 +428,9 @@ async def startup_event():
     """Initialize scheduled tasks on startup"""
     print(f"[{datetime.now()}] Starting YouTube Downloader Worker...")
     
+    if not scheduler.running:
+        scheduler.start()
+    
     # Schedule cleanup every 30 minutes
     scheduler.add_job(
         scheduled_cleanup,
@@ -439,7 +450,8 @@ async def startup_event():
         id='ytdlp_update_job',
         replace_existing=True
     )
-    print("✅ Scheduled yt-dlp update: Daily at 3:00 AM UTC")
+    next_run = scheduler.get_job('ytdlp_update_job').next_run_time
+    print(f"✅ Scheduled yt-dlp update: Daily at 3:00 AM UTC (next: {next_run})")
     
     # Run initial cleanup
     scheduled_cleanup()
